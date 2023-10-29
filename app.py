@@ -1,20 +1,19 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 import newspaper
 from newspaper import Article
 app = Flask(__name__)
 
-
-
-
-
-@app.route('/')
+@app.route('/get-text-from-links', methods=['POST'])
 def hello_world():
-    urls = ['https://www.theiwsr.com/key-trends-for-wine-in-2023-and-beyond/','https://8wines.com/blog/wine-trends-everything-you-need-to-know','https://www.wineandmore.com/stories/global-wine-trends/']
-    texts = []
-    for url in urls:
-        article = Article(url)
-        article.download()
-        article.parse()
-        texts.append(article.text)
+    if request.is_json:
+        urls = request.get_json()
+        texts = []
+        for url in urls:
+            article = Article(url)
+            article.download()
+            article.parse()
+            texts.append(article.text)
     
-    return texts
+        return jsonify(texts), 200
+    else:
+        return jsonify({'error': 'Invalid JSON data'}), 400
